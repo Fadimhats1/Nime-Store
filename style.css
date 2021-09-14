@@ -1,0 +1,278 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto';
+}
+
+p, hr, h1, h2, h3, h4, h5{
+    margin: 0;
+    padding: 0;
+}
+
+img{
+    display: block;
+    max-width: 100%;
+}
+
+a{
+    text-decoration: none;
+}
+
+form{
+    display: flex;
+    flex-direction: column;
+}
+
+.image-def-wrapper{
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+#eyes{
+    right: 5%;
+    cursor: pointer;
+}
+
+.button-image-default{
+    position: absolute;
+    z-index: 2;
+    bottom: 1rem;
+    right: 7rem;
+}
+
+.modal-dialogs{
+    width: 24rem;
+}
+
+.modal-headers{
+    border-bottom: none;
+    padding-bottom: 0rem;
+}
+
+.back{
+    background-color: transparent;
+    border: none;
+    opacity: 0;
+}
+
+.wrapper-signin{
+    position: relative;
+    min-height: 8rem;
+    overflow: hidden;
+}
+
+.uName, .pass{
+    gap: 0.5rem;
+    position: absolute;
+    width: calc(100% - 10px);
+    bottom: 3rem;
+    transition: 0.4s all ease;
+}
+
+.left{
+    transform: translateX(28rem);
+}
+
+.now{
+    transform: translate(0);
+}
+
+.right{
+    transform: translateX(-28rem);
+}
+
+.hide{
+    display: none;
+}
+
+.show{
+    display: block;
+}
+
+.icon_user{
+    width: 1.5rem;
+    border-radius: 100%;
+}
+
+.wrapper-search{
+    width: 70%;
+}
+
+.w-16{
+    width: 16rem;
+}
+
+.w-24{
+    min-width: 24rem;
+}
+
+.w-8{
+    width: 8rem;
+}
+
+.h-16{
+    height: 16rem;
+}
+
+.h-24{
+    min-height: 24rem;
+}
+
+.w-32{
+    width: 32rem;
+}
+
+.w-30{
+    width: 30rem;
+}
+
+.w-2{
+    width: 2.5rem;
+}
+
+.h-2{
+    height: 2.5rem;
+}
+
+/* MODAL BUATAN SENDIRI */
+
+.bgModal{
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.5);
+    top: 0;
+    left: 0;
+    z-index: 4;
+    display: none;
+}
+
+.cardModal{
+    position: relative;
+    background-color: white;
+    z-index: 8;
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 0.4s;
+    animation-name: animatetop;
+    border-radius: 0.3rem;
+    animation-duration: 0.4s
+}
+
+@-webkit-keyframes animatetop {
+    from {top:-20rem; opacity:0} 
+    to {top:0; opacity:1}
+}
+@keyframes animatetop {
+    from {top:-20rem; opacity:0}
+    to {top:0; opacity:1}
+}
+
+.contentModal{
+    padding: 1.5rem;
+}
+
+.gap-8{
+    gap: 4rem;
+}
+
+.opacOn{
+    opacity: 1;
+    z-index: 4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.opacOff{
+    opacity: 0;
+    z-index: -4;
+    transition: 0.3s;
+    display: none;
+}
+
+.btp{
+    border-top: 1px solid #dee2e6;
+}
+
+.bbm{
+    border-bottom: 1px solid #dee2e6;
+}
+
+table{
+    max-width: 100%;
+    background-color: #212529;
+    color: white;
+}
+
+thead tr{
+    border-bottom: 1px solid white;
+}
+
+.text{
+    max-width: 24rem;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+th, td{
+    padding: 1rem 0.5rem;
+}
+
+#table-produk tbody{
+    max-height: 24rem;
+    overflow-y: scroll;
+}
+
+#hapus, #edit{
+    display: none;
+}
+
+.show-data tr:nth-child(odd){
+    box-shadow: inset 0 0 0 9999px #2c3034;
+}
+
+.page-item:not(.disabled){
+    cursor: pointer;
+}
+
+.fa-star{
+    color: #ffd700;
+}
+
+.card-title{
+    margin: 0%;
+}
+
+.gap-12{
+    gap: 8rem;
+}
+
+/* BUTTON QTY */
+
+.inline-group {
+    max-width: 9rem;
+    padding: .5rem;
+}
+
+.inline-group .form-control {
+text-align: right;
+}
+
+.form-control[type="number"]::-webkit-inner-spin-button,
+.form-control[type="number"]::-webkit-outer-spin-button {
+-webkit-appearance: none;
+margin: 0;
+}
+
+#carousel{
+    overflow: hidden;
+}
+
+#imgProd{
+    transition: 0.4s;
+    min-width: none;
+}
