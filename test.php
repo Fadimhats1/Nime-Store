@@ -1,7 +1,8 @@
 <?php 
     include('function/libraryUser.php');
     $lib_user = new Library;
-
+    $array = array(3, 6, 34);
+    $temp = $lib_user->moreStuff($array, 2);
 ?>
 
 

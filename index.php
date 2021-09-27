@@ -2,6 +2,11 @@
   include('function/libraryUser.php');
   $lib_user = new Library();
   session_start();
+  $recentView = array();
+  if(isset($_COOKIE['recentView'])){
+    $recentView = json_decode(($_COOKIE['recentView']));
+  }
+  setcookie('recentView', json_encode($recentView), time() + (3600 * 24));
   $warn = 1;
   if(isset($_POST['submit'])){
     $email_user = $_POST['email'];
@@ -39,6 +44,7 @@
 <body>
   <?php include('navbar.php');?>
   <?php include('homepage.php');?>
+  <?php include('footer.php'); ?>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
   <script src="script.js"></script>
   <script src="infiniteScroll.js"></script>

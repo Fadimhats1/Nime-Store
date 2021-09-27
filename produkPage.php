@@ -1,7 +1,18 @@
 <?php 
     include('function/libraryUser.php');
     $lib_user = new Library();
+    $checking = false;
     session_start();
+    $recentView = json_decode($_COOKIE['recentView']);
+
+    if(isset($_GET['id']) && is_numeric($_GET['id'])){
+        $id = $_GET['id'];
+        array_push($recentView, $id);
+        $recentView = array_unique($recentView);
+        setcookie('recentView', json_encode($recentView), time() + (3600 * 24));
+        $checking = true;
+    }
+
     $login = isset($_SESSION['login']) ? $_SESSION['login'] : '';
 
     if($login && isset($_POST['quit'])){
@@ -25,13 +36,13 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <?php include('navbar.php');?>
-    <?php if(isset($_GET['id']) && is_numeric($_GET['id'])){
-        $id = $_GET['id'];
+    <?php 
+        include('navbar.php');
+        if($checking){
         $produk = $lib_user->selectSpecific($id, 'produk'); ?>
-        <div id="body" class="d-flex justify-content-center">
-            <div class="w-75 pt-3 pb-4">
-                <div class="card mb-3 card-produk-page">
+        <div id="body" class="d-flex justify-content-center pt-3 pb-5">
+            <div class="w-75 pt-3 pb-4 d-flex flex-column gap-5">
+                <div class="card card-produk-page shadow-card">
                     <div class="row g-0">
                         <div id="sectImg" class="col-md-5 p-3 d-flex flex-column gap-3">
                             <div id="carousel" class="rounded">
@@ -93,15 +104,69 @@
                                 <p id="descripProd" class="card-text mt-3 mb-4"><?= $produk['deskripsi_produk'] ?></p>
                                 <div class="d-flex gap-3">
                                     <p class="card-text text-muted">Category: </p>
-                                    <div class="d-flex justify-content-evenly flex-wrap gap-2 align-items-center">
+                                    <div class="d-flex flex-wrap gap-2 align-items-center">
                                             <?php
                                                 $selectSubKategori = $lib_user->showProdukSub($id);
-                                            foreach($selectSubKategori AS $key){ ?>
+                                                foreach($selectSubKategori AS $key){ ?>
                                             <a href="#" class="btn btn-secondary btn-sm"><?= $key['nama_subkategori'] ?></a>
                                         <?php } ?>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h4>More Stuff Like This!</h4>
+                        <a href="">See All <i class="fas fa-long-arrow-alt-right"></i></a>
+                    </div>
+                    <div>
+                        <div id="moreCont" class="cards-container d-flex align-items-center justify-content-center px-2 shadow-card">
+                            <button class="prev-more btn btn-outline-primary justify-content-center align-items-center hide"><i class="fas fa-chevron-left fs-3"></i></button>
+                            <div id="more-stuff" class="cards-group row row-cols-1 row-cols-md-3 g-4 w-100 ">
+                                <?php
+                                    $moreSubKate = array_column($selectSubKategori, 'subkategori_id');
+                                    $moreStuff = $lib_user->moreStuff($moreSubKate, $id);
+                                    foreach($moreStuff AS $key){?>
+                                    <a href="../../produkPage.php?id=<?= $key['id'] ?>" class="cards col">
+                                        <div class="card">
+                                            <img src="<?= $key['nama_image']; ?>" class="card-img-top" alt="..." height="144.175px">
+                                            <div class="card-body">
+                                                <p class="card-title fs-5 fw-bold"><?= $key['nama_produk'] ?></p>
+                                                <p class="card-text fs-5 fw-bold"><?= $key['harga_produk'] ?></p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                <?php } ?>
+                            </div>
+                            <button class="next-more btn btn-outline-primary justify-content-center align-items-center hide"><i class="fas fa-chevron-right fs-3"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h4>Recently Viewed Items!</h4>
+                    </div>
+                    <div>
+                        <div id="recentCont" class="cards-container d-flex align-items-center justify-content-center px-2 shadow-card">
+                            <button class="prev-recent btn btn-outline-primary justify-content-center align-items-center hide"><i class="fas fa-chevron-left fs-3"></i></button>
+                            <div id="recent" class="cards-group row row-cols-1 row-cols-md-3 g-4 w-100 ">
+                                <?php
+                                    for($i = count($recentView) - 1; $i >= 0; $i--){ 
+                                        $recentProduk = $lib_user->showRecentProduk($recentView[$i]);?>
+                                    <a href="../../produkPage.php?id=<?= $recentView[$i] ?>" class="cards col">
+                                        <div class="card">
+                                            <img src="<?= $recentProduk['nama_image']; ?>" class="card-img-top" alt="..." height="144.175px">
+                                            <div class="card-body">
+                                                <p class="card-title fs-5 fw-bold"><?= $recentProduk['nama_produk'] ?></p>
+                                                <p class="card-text fs-5 fw-bold"><?= $recentProduk['harga_produk'] ?></p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                <?php } ?>
+                            </div>
+                            <button class="next-recent btn btn-outline-primary justify-content-center align-items-center hide"><i class="fas fa-chevron-right fs-3"></i></button>
                         </div>
                     </div>
                 </div>
@@ -114,11 +179,15 @@
             </div>
         </div>
     <?php } ?>
+    <?php include('footer.php'); ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <script src="script.js"></script>
     <script>
-        let price = <?php echo $produk['harga_produk'] ?>, qty = 1, temp, currImg = 0, len = $('.img-outside').length ? $('.img-outside').length : 1, heightImage = $('#sectImg').height();
-        
+        let price = <?php echo $produk['harga_produk'] ?>, qty = 1, temp, currImg = 0, len = $('.img-outside').length ? $('.img-outside').length : 1, heightImage = $('#sectImg').height(), idxRecent = 0, idxMore = 0, totalRecent = Math.ceil(<?php echo count($recentView)/5 ?>), totalMore = Math.ceil(<?php echo count($moreStuff)/5 ?>);
+
+        slideRecent(idxRecent);
+        slideMore(idxMore);
+
         $('#descripProd').css('min-height', `${heightImage*23/100}px`);
 
         $('.btn-plus, .btn-minus').click(function(e){
@@ -150,6 +219,64 @@
         function changeImg(curr){
             op = curr * $('#sectImg').width() * -1;
             $('#imgProd').css('transform', `translateX(${op}px)`);
+        }
+        
+        $('body').on('click', '.prev-recent', function(){
+            if(idxRecent > 0){
+                --idxRecent;
+            }
+            slideRecent(idxRecent);
+        })
+
+        $('body').on('click', '.next-recent', function(){
+            if(idxRecent < totalRecent - 1){
+                ++idxRecent;
+            }
+            slideRecent(idxRecent);
+        })
+
+        $('body').on('click', '.prev-more', function(){
+            if(idxMore > 0){
+                --idxMore;
+            }
+            slideMore(idxMore);
+        })
+
+        $('body').on('click', '.next-more', function(){
+            if(idxMore < totalMore - 1){
+                ++idxMore;
+            }
+            slideMore(idxMore);
+        })
+        
+        function slideRecent(curr){
+            if(curr == 0){
+                $('.prev-recent').addClass('hide').removeClass('d-flex');
+            }else{
+                $('.prev-recent').addClass('d-flex').removeClass('hide');
+            }
+            if(curr == totalRecent - 1){
+                $('.next-recent').addClass('hide').removeClass('d-flex');
+            }else{
+                $('.next-recent').addClass('d-flex').removeClass('hide');
+            }
+            op = curr * $('#recentCont').width() * -1;
+            $('#recent').css('transform', `translateX(${op}px)`);
+        }
+
+        function slideMore(curr){
+            if(curr == 0){
+                $('.prev-more').addClass('hide').removeClass('d-flex');
+            }else{
+                $('.prev-more').addClass('d-flex').removeClass('hide');
+            }
+            if(curr == totalMore - 1){
+                $('.next-more').addClass('hide').removeClass('d-flex');
+            }else{
+                $('.next-more').addClass('d-flex').removeClass('hide');
+            }
+            op = curr * $('#moreCont').width() * -1;
+            $('#more-stuff').css('transform', `translateX(${op}px)`);
         }
     </script>
 </body>

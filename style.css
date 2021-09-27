@@ -12,6 +12,21 @@ p, hr, h1, h2, h3, h4, h5{
     padding: 0;
 }
 
+header{
+    z-index: 100;
+    position: sticky;
+    top: 0;
+    left: 0;
+}
+
+footer{
+    z-index: 100;
+    position: sticky;
+    bottom: 0;
+    left: 0;
+}
+
+
 img{
     display: block;
     max-width: 100%;
@@ -268,6 +283,12 @@ text-align: right;
 margin: 0;
 }
 
+/* BUTTON QTY */
+
+#body{
+    background-color: #F7F7F7;
+}
+
 #carousel{
     overflow: hidden;
 }
@@ -276,3 +297,89 @@ margin: 0;
     transition: 0.4s;
     min-width: none;
 }
+
+.cards-container{
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: .25rem;
+    overflow: hidden;
+    height: 18rem;
+    box-sizing: border-box;
+    position: relative;
+    background-color: white;
+}
+
+.cards-group{
+    flex-wrap: nowrap;
+}
+
+.cards{
+    flex: 0 0 20%;
+}
+
+.cards :only-child{
+    height: 16rem;
+}
+
+.prev-recent, .next-recent, .prev-more, .next-more{
+    height: 4rem;
+    width: 4rem;
+    position: absolute;
+    z-index: 3;
+    border-radius: 4rem;
+    background-color: white;
+    border: none;
+    filter: opacity(0.6);
+}
+
+.prev-recent, .prev-more{
+    left: 1.8rem;
+}
+
+.next-recent, .next-more{
+    right: 1.8rem;
+}
+
+.prev-recent:hover, .next-recent:hover, .prev-more:hover, .next-more:hover{
+    filter: opacity(1);
+    transition: .15s ease-in-out;
+}
+
+#recent, #more-stuff{
+    transition: 0.6s;
+}
+
+.btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+#footer{
+    padding: 0rem 8rem;
+    box-shadow: 0 -0.125rem .25rem rgba(0,0,0,.075);
+}
+
+.column{
+    flex: 1;
+}
+
+#image-footer .fab{
+    font-size: 3.5rem;
+}
+
+#logo-footer :first-child{
+    background-color: #0d6efd;
+    font-weight: bold;
+    color: white;
+    padding: .25rem 1rem;
+    border-radius: .25rem;
+}
+
+.shadow-card{
+    box-shadow: 0 0 .25rem rgba(0,0,0,.075);
+}
+
+.list-category{
+    margin: 0;
+    list-style-type: none;
+}
+

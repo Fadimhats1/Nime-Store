@@ -451,17 +451,11 @@
         }
         
         public function selectedProdukKate($idProduk){
-            $query = $this->db->prepare('SELECT subkategori_id FROM produk_kategori WHERE produk_id=?');
+            $query = $this->db->prepare('SELECT subkategori_id FROM produk_kategori WHERE produk_id=? GROUP BY subkategori_id');
             $query->bindParam(1, $idProduk, PDO::PARAM_INT);
             $query->execute();
             $select = $query->fetchAll(PDO::FETCH_ASSOC);
-            $check = array();
-            foreach($select as $key){
-                $temp = array_filter($key, function($k){
-                    return $k == 'subkategori_id';
-                }, ARRAY_FILTER_USE_KEY);
-                array_push($check, reset($temp));
-            }
+            $check = array_column($select, 'subkategori_id');
             return $check;
         }
         
@@ -573,10 +567,44 @@
             }
         }
         public function showProdukSub($idProd){
-            $query = $this->db->prepare('SELECT p.*, s.nama_subkategori FROM produk_kategori AS p JOIN sub_kategori AS s ON p.subkategori_id = s.id WHERE produk_id = ?');
+            $query = $this->db->prepare('SELECT p.*, s.nama_subkategori FROM produk_kategori AS p JOIN sub_kategori AS s ON p.subkategori_id = s.id WHERE produk_id = ? GROUP BY p.subkategori_id');
             $query->bindParam(1, $idProd, PDO::PARAM_INT);
             $query->execute();
             return $query->fetchAll(PDO::FETCH_ASSOC);
+        }
+        
+        public function showRecentProduk($idProd){
+            $query = $this->db->prepare('SELECT p.*, i.nama_image FROM produk AS p JOIN image_produk AS i ON p.image_produk_id = i.id WHERE p.id=?');
+            $query->bindParam(1, $idProd);
+            $query->execute();
+            return $query->fetch(PDO::FETCH_ASSOC);
+        }
+
+        public function moreStuff($idSubKate, $idProdNow){
+            $batas = 5;
+            $final = array();
+            if(count($idSubKate) == 1){
+                $batas = 20;
+            }
+            for($i = 0; $i < count($idSubKate); $i++){
+                if(count($final) >= 20){
+                    break;
+                }
+                $str = "SELECT p.*, i.nama_image FROM produk_kategori AS pk JOIN produk AS p ON pk.produk_id = p.id JOIN image_produk AS i ON p.image_produk_id = i.id WHERE pk.subkategori_id=? AND p.id NOT IN (?) LIMIT 0, $batas";
+                $query = $this->db->prepare($str);
+                $query->bindParam(1, $idSubKate[$i]);
+                $query->bindParam(2, $idProdNow, PDO::PARAM_INT);
+                $query->execute();
+
+                $temp = $query->fetchAll(PDO::FETCH_ASSOC);
+                $final = array_merge($final, $temp);
+            }
+            $final = array_intersect_key($final, array_unique(array_column($final, 'id')));
+            sort($final);
+            return $final;
+        }
+        public function searchProdByKategori($id){
+
         }
     }
 ?>
