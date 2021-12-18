@@ -5,4 +5,4 @@
     $price = $_POST['price'];
     $total = $qty * $price;
 ?>
-<h5>Rp. <?= $total ?></h5>
+<h5 class="total-price-val">Rp. <?= number_format($total, 0,",",".") ?></h5>

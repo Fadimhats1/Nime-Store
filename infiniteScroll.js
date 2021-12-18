@@ -1,35 +1,41 @@
 $(document).ready(function(){
-    let currPage = 1, times = 0, value = '#section-1';
+    let currPage = 1, times = 1, value = '#section-1';
+    if(totalPage){
+        showData(currPage, value, times, totalPage);
+    
+        $(window).on('scroll', function(){
+            if($(window).scrollTop() + $(window).height() > $(document).height() - 100){
+                if(currPage <= 4 && currPage != totalPage){
+                    currPage = currPage + 1 <= totalPage ? currPage + 1 : currPage;
+                    showData(currPage, value, totalPage);
+                }
+            }
+        })
 
-    showData(currPage, value, times, totalPage);
+        $('body').on('click', '#loadMore', function(){
+            currPage = currPage + 1 <= totalPage ? currPage + 1 : currPage;
+            showData(currPage, value, totalPage);
+        })
 
-    $(window).on('scroll', function(){
-        if($(window).scrollTop() + $(window).height() > $(document).height() - 100){
-            if(times < 4){
-                ++times;
-                showData(++currPage, value, times, totalPage);
+        function showData(currPage, value, totalPage){
+            if(totalPage){
+                $.ajax({
+                    type: 'POST',
+                    url: 'function/indexAjax/infiniteScroll.php',
+                    data:{
+                        currPage: currPage  
+                    }, success: function(data){
+                        if(currPage == totalPage){
+                            $('#loadMore').addClass('hide');
+                        }else if(currPage > 4){
+                            $('#loadMore').removeClass('hide');
+                        }
+                        $(value).append(data);
+                    }
+                })
             }
         }
-    })
-    $('body').on('click', '#loadMore', function(){
-        showData(++currPage, value, times, totalPage);
-    })
-
+    }
 })
 
-function showData(currPage, value, times, totalPage){
-    $.ajax({
-        type: 'POST',
-        url: 'function/indexAjax/infiniteScroll.php',
-        data:{
-            currPage: currPage
-        }, beforeSend: function(){
-            $('#loadMore').removeClass('hide');
-        }, success: function(data){
-            if(times < 4 || currPage == totalPage){
-                $('#loadMore').addClass('hide');
-            }
-            $(value).append(data);
-        }
-    })
-}
+

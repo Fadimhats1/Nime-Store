@@ -8,7 +8,7 @@
             try{
                 $this->db = new PDO("mysql:host={$host};dbname={$dbname}", $uName, $pass);
             }catch(PDOException $e){
-                echo "connection failed. ".$e->getMessage();
+                echo "connection to DB failed. ".$e->getMessage();
             }
         }
 
@@ -75,13 +75,11 @@
             $query->bindParam(2, $email_user);
             $query->execute();
             $data = $query->fetch(PDO::FETCH_ASSOC);
-            if($data){
-                if(!password_verify($pass_user, $data['pass_user'])){
-                    return 0;
-                }
-                return $data;
+            if(!$data){
+               return false;
             }
-            return -1;
+            $_SESSION['login'] = $data;
+            return true;
         }
 
         public function get_id($id_user){
@@ -527,7 +525,7 @@
             $idGambar = 0;
             $count = count($gambar);
             for($i = 0; $i < $count; $i++){
-                $check = $this->addImage($idProd, $gambar[$i],$tGambar[$i], $sizeGambar[$i]);
+                $check = $this->addImage($idProd, $gambar[$i], $tGambar[$i], $sizeGambar[$i]);
                 if(!$i){
                     $idGambar = $this->db->lastInsertId();
                 }
@@ -603,8 +601,119 @@
             sort($final);
             return $final;
         }
-        public function searchProdByKategori($id){
 
+        public function searchProdKategori($keyword, $idKate){
+            $str = 'SELECT pk.subkategori_id FROM produk AS p JOIN produk_kategori AS pk ON p.id = pk.produk_id JOIN sub_kategori AS sk ON pk.subkategori_id = sk.id WHERE nama_produk LIKE ?';
+            if($idKate){
+                $str .= ' AND sk.kategori_id = ?';
+            }
+            $str .= ' GROUP BY pk.subkategori_id ORDER BY pk.subkategori_id ASC';
+            $query = $this->db->prepare($str);
+            $query->bindValue(1, '%'.$keyword.'%', PDO::PARAM_STR);
+            if($idKate){
+                $query->bindParam(2, $idKate, PDO::PARAM_INT);
+            }
+            $query->execute();
+            return $query->fetchAll();
+        }
+
+        public function countKate($keyword, $idSubKate){
+            $query = $this->db->prepare('SELECT pk.id FROM produk_kategori AS pk JOIN produk AS p ON pk.produk_id = p.id WHERE nama_produk LIKE ? AND subkategori_id=? GROUP BY produk_id;');
+            $query->bindValue(1, '%'.$keyword.'%', PDO::PARAM_STR);
+            $query->bindParam(2, $idSubKate, PDO::PARAM_INT);
+            $query->execute();
+            $temp = $query->fetchAll(PDO::FETCH_ASSOC);
+            return count($temp);
+        }
+        
+        public function searchByKategori($keyword, $idSubKate, $order, $page, $min, $max, $idKate){
+            $len = $idSubKate ? count($idSubKate) : 0;
+            $str = "SELECT SQL_CALC_FOUND_ROWS p.*, i.nama_image FROM produk AS p JOIN image_produk AS i ON p.image_produk_id = i.id JOIN produk_kategori AS pk ON p.id = pk.produk_id JOIN sub_kategori AS sk ON pk.subkategori_id = sk.id WHERE nama_produk LIKE ? AND p.harga_produk BETWEEN ? AND ?";
+            
+            if($idKate){
+                $str .= ' AND sk.kategori_id = ?';
+            }else if($len){
+                $str .= ' AND pk.subkategori_id IN(';
+            }
+
+            for($i = 0; $i < $len; $i++){
+                $str .= '?';
+                if($i + 1 < $len){
+                    $str .= ',';
+                }else if($i + 1 == $len){
+                    $str .= ')';
+                }
+            }
+
+            $str .= ' GROUP BY p.id';
+
+            if($len){
+                $str .= ' HAVING COUNT(*) > ?';
+            }
+
+            if($order == 'high'){
+                $str .= ' ORDER BY p.harga_produk DESC';
+            }else if($order == 'low'){
+                $str .= ' ORDER BY p.harga_produk ASC';
+            }
+            
+            $str .= ' LIMIT ?, 24';
+            $query = $this->db->prepare($str);
+            $query->bindValue(1, '%'.$keyword.'%', PDO::PARAM_STR);
+            $query->bindParam(2, $min, PDO::PARAM_INT);
+            $query->bindParam(3, $max, PDO::PARAM_INT);
+            $j = 4;
+
+            if($idKate){
+                $query->bindParam($j++, $idKate, PDO::PARAM_INT);
+            }else if($len){
+                for($i = 0; $i < $len; $i++, $j++){
+                    $query->bindParam($j, $idSubKate[$i], PDO::PARAM_INT);
+                }
+                --$len;
+                $query->bindParam($j++, $len, PDO::PARAM_INT);
+            }
+            $query->bindParam($j, $page, PDO::PARAM_INT);
+            $query->execute();
+            return $query->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        public function minMaxPrice($keyword, $idSubKate, $idKate){
+            $len = $idSubKate ? count($idSubKate) : 0;
+            $str = 'SELECT MAX(p.harga_produk) AS max, MIN(p.harga_produk) AS min FROM produk AS p JOIN image_produk AS i ON p.image_produk_id = i.id JOIN produk_kategori AS pk ON p.id = pk.produk_id JOIN sub_kategori AS sk ON pk.subkategori_id = sk.id WHERE nama_produk LIKE ?';
+
+            if($idKate){
+                $str .= ' AND sk.kategori_id = ?';
+            }else if($len){
+                $str .= ' AND pk.subkategori_id IN(';
+            }
+
+            for($i = 0; $i < $len; $i++){
+                $str .= '?';
+                if($i + 1 < $len){
+                    $str .= ',';
+                }else if($i + 1 == $len){
+                    $str .= ')';
+                }
+            }
+
+            $query = $this->db->prepare($str);
+            $query->bindValue(1, '%'.$keyword.'%', PDO::PARAM_STR);
+            $j = 2;
+            if($idKate){
+                $query->bindParam($j, $idKate, PDO::PARAM_INT);
+            }else if($len){
+                for($i = 0; $i < $len; $i++, $j++){
+                    $query->bindParam($j, $idSubKate[$i], PDO::PARAM_INT);
+                }
+            }
+
+            $query->execute();
+            $temp = array();
+            for($i = 0; $i < 2; $i++){
+                array_push($temp, $query->fetchColumn($i)); 
+            }
+            return $temp;
         }
     }
 ?>

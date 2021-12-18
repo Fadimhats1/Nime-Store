@@ -5,14 +5,24 @@
     $lib_user = new Library();
     $faker = Faker\Factory::create();
 
-    foreach(range(1, 20) AS $key){
+    foreach(range(1, 400) AS $key){
+        $tempSubKate = array();
         $totalKategori = $faker->numberBetween(1, 4);
         $totalImage = $faker->numberBetween(1, 5);
-        $query = $lib_user->db->prepare("INSERT INTO produk(nama_produk, harga_produk, stok_produk, deskripsi_produk) VALUES('{$faker->word}', '{$faker->randomNumber()}', '{$faker->numberBetween(1, 999)}', '{$faker->word}')");
+        $lenSentence = $faker->numberBetween(8, 24);
+        $query = $lib_user->db->prepare("INSERT INTO produk(nama_produk, harga_produk, stok_produk, deskripsi_produk) VALUES('{$faker->sentence($faker->numberBetween(1, 3), true)}', '{$faker->numberBetween(16000, 10000000)}', '{$faker->numberBetween(1, 999)}', '{$faker->sentence($lenSentence, true)}')");
         $query->execute();
         $id = $lib_user->db->lastInsertId();
         for($i = 0; $i < $totalKategori; $i++){
-            $query = $lib_user->db->prepare("INSERT INTO produk_kategori(subkategori_id, produk_id) VALUES((SELECT id FROM sub_kategori WHERE id='{$faker->numberBetween(1, 42)}'), (SELECT id FROM produk WHERE id='{$id}'))");
+            $tempSubKateVal;
+            while(true){
+                $tempSubKateVal = $faker->numberBetween(1, 48);
+                if(!in_array($tempSubKateVal, $tempSubKate)){
+                    array_push($tempSubKate, $tempSubKateVal);
+                    break;
+                }
+            }
+            $query = $lib_user->db->prepare("INSERT INTO produk_kategori(subkategori_id, produk_id) VALUES((SELECT id FROM sub_kategori WHERE id='{$tempSubKateVal}'), (SELECT id FROM produk WHERE id='{$id}'))");
             $query->execute();
         }
         for($i = 0; $i < $totalImage; $i++){

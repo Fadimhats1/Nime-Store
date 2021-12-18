@@ -1,3 +1,14 @@
+$(document).ready(function(){
+    $('.signinForm').keydown((e)=>{
+        if(e.keyCode == 13){
+          if($('.next').hasClass('show')){
+            e.preventDefault();
+            $('.next').click();
+          }
+        }
+    })
+})
+
 $('.next').click(()=>{
     $('.title').css('opacity', '0');
     $('.back').css('opacity', '1');
@@ -8,15 +19,6 @@ $('.next').click(()=>{
 })
 
 $('.back').click(()=>{
-    $('.back').css('opacity', '0');
-    $('.title').css('opacity', '1');
-    $('.uName').addClass('now').removeClass('right');
-    $('.pass').addClass('left').removeClass('now');
-    $('.next').addClass('show').removeClass('hide');
-    $('.submit').addClass('hide').removeClass('show');
-})
-
-$('.btn-close').click(()=>{
     $('.back').css('opacity', '0');
     $('.title').css('opacity', '1');
     $('.uName').addClass('now').removeClass('right');

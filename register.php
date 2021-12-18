@@ -34,7 +34,7 @@
                 <h5 class="text-center">SIGN UP</h5>
                 <a class="text-end" href=""></a>
             </div>
-            <form action="" class="form-register gap-2" method="POST" enctype="multipart/form-data">
+            <form class="form-register gap-2" method="POST" enctype="multipart/form-data">
                 <!-- <div class="image-def-wrapper">
                     <img class="image-default" src="image/default.png" alt="image">
                     <input type="file" name="image" id="input_file" hidden>
